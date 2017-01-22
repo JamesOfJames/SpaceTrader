@@ -29,8 +29,8 @@
 randomize();
 image_speed = 0;
 
-global.wPort = view_wport[0];
-global.hPort = view_hport[0];
+wPort = view_wport[0];
+hPort = view_hport[0];
 
 /*
 0) Create Galaxy (macro movment grid between systems)
@@ -60,42 +60,12 @@ galX = 1;
 galY = 1;
 galH = 3;
 galW = 3;
+stars = ds_map_create();
+ds_map_clear(stars);
 
 // System Variables
 plCommodities = 5; // Each planet will produce this many trade goods, by default.
 firstOrbit = 1000; // Inner planet's orbit in px
-var a = script_execute(scriptDiceRoll, 3);
-switch a
-{case 3:
- case 4:
-   orbitRatio = 1.4;
-   break;
- case 5:
- case 6:
-   orbitRatio = 1.5;
-   break;
- case 7:
- case 8:
-   orbitRatio = 1.6;
-   break;
- case 9:
- case 10:
- case 11:
- case 12:
-   orbitRatio = 1.7;
-   break;
- case 13:
- case 14:
-   orbitRatio = 1.8;
-   break;
- case 15:
- case 16:
-   orbitRatio = 1.9;
-   break;
- case 17:
- case 18:
-   orbitRatio = 2.0;
-   break;}
 </string>
           </argument>
         </arguments>
@@ -116,7 +86,17 @@ switch a
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>/*// Starfield Setup
+            <string>/// Start the Clock
+
+steps = 0;
+second = irandom(60);
+minute = irandom(60);
+hour = irandom_range(1, 24);
+day = irandom_range(1, 28);
+month = irandom_range(1, 12);
+year = 2368;
+
+/*// Starfield Setup
 var a, b;
 for (a = 1; a &lt;= 3; a += 1)
 {randomize();
@@ -152,12 +132,7 @@ surface_reset_target();
 scriptLoadPlayer();
 randomize();
 
-global.Second = irandom(60);
-global.Minute = irandom(60);
-global.Hour = irandom_range(1, 24);
-global.Day = irandom_range(1, 28);
-global.Month = irandom_range(1, 12);
-global.Year = 2368;
+
 
 global.MonthName[0] = "ERR";
 global.MonthName[1] = "Jan";
@@ -179,6 +154,34 @@ var inst;
  inst = instance_create(room_width/2, room_height/2, ds_grid_get(global.PlayerData, 0, ObjectC));
  with (inst)
  {view_object[0] = inst.id;}  
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="1" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Cleanup
+
+ds_map_destroy(stars);
+ds_grid_destroy(galRooms);
+ds_grid_destroy(commList);
+ds_grid_destroy(galPlanets);
 </string>
           </argument>
         </arguments>
@@ -211,6 +214,76 @@ if a != noone
           </argument>
         </arguments>
       </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Warp to different systems
+warp = -1;
+
+if keyboard_check_pressed(vk_right) {warp = 0;}
+if keyboard_check_pressed(vk_up) {warp = 1;}
+if keyboard_check_pressed(vk_left) {warp = 2;}
+if keyboard_check_pressed(vk_down) {warp = 3;}
+
+switch (warp)
+{case 0:
+  galX++;
+  room_goto(ds_grid_get(galRooms, galX, galY));
+  break;
+ case 1:
+  galY--;
+  room_goto(ds_grid_get(galRooms, galX, galY));
+  break;
+ case 2:
+  galX--;
+  room_goto(ds_grid_get(galRooms, galX, galY));
+  break;
+ case 3:
+  galY++;
+  room_goto(ds_grid_get(galRooms, galX, galY));
+   break;
+ default:
+  break;}
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// One step at a time...
+
+steps++;
+</string>
+          </argument>
+        </arguments>
+      </action>
     </event>
     <event eventtype="5" enumb="8">
       <action>
@@ -226,6 +299,34 @@ if a != noone
         <whoName>self</whoName>
         <relative>0</relative>
         <isnot>0</isnot>
+      </action>
+    </event>
+    <event eventtype="7" enumb="25">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// UI Activation goes here
+
+switch (other.uiControlName)
+{case 'checkbox':
+  room_goto(rm_checkbox);
+  break;}
+</string>
+          </argument>
+        </arguments>
       </action>
     </event>
     <event eventtype="7" enumb="13">
@@ -357,6 +458,12 @@ ds_queue_enqueue(commRawData, "Nanotech, 500000, 2, 5% In, -3, Mi, 1, Ni, 2, Pe,
 
 commList = ds_grid_create(20, ds_queue_size(commRawData));
 script_execute(scriptCommSetup);
+
+// Check what's in commList
+/*var a, b;
+for (b = 0; b &lt; ds_grid_height(commList); b++)
+{for (a = 0; a &lt; ds_grid_width(commList); a++)
+ {show_debug_message("commList[" + string(a) + ", " + string(b) + "] = " + string(ds_grid_get(commList, a, b)));}}*/
  
 // Setup Variables
 displayText = "Coalescing Cosmic Dust..."
@@ -423,16 +530,55 @@ stepBegun = false;
             <string>/// Room Setup
 
 room_speed = 60;
+view_enabled = true;
+view_wview[0] = wPort;
+view_hview[0] = hPort;
+
+currentSys = room;
 
 // do "is this the first time in a new system?" stuff
-
 if gameSetup
-{view_wview[0] = global.wPort;
- view_hview[0] = global.hPort;
+{script_execute(scriptCheckNeighbors);
+ if ds_map_find_value(stars, room) == noone // Room has not been setup?
+ {if !instance_exists(objectStar) // Is there a star?  If not, the room has not been set up.
+  {script_execute(scriptNewSystem);
+   currentStar = instance_create(0, 0, objectStar);
+   ds_map_replace(stars, room, currentStar);}}
+ else // Room has been setup
+ {currentStar = ds_map_find_value(stars, room)
+  instance_activate_object(currentStar);
+  
+  var a, b;
+  for (a = 0; a &lt; ds_list_size(currentStar.planets); a++) {instance_activate_object(ds_list_find_index(currentStar.planets, a));}
+  for (b = 0; b &lt; ds_list_size(ships); b++) {instance_activate_object(ds_list_find_index(currentStar.ships, b));}}}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="7" enumb="3">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Cleanup
 
- script_execute(scriptCheckNeighbors);
- if !instance_exists(objectStar) // Is there a star?  If not, the room has not been set up.
- {currentStar = instance_create(0, 0, objectStar);}}
+ds_map_destroy(stars);
+ds_grid_destroy(galRooms);
+ds_grid_destroy(commList);
+ds_grid_destroy(galPlanets);
 </string>
           </argument>
         </arguments>
@@ -561,8 +707,8 @@ if global.Paused == 1
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>/// Inventory
-
+            <string>/// ***Inventory
+/*
 if global.InventoryWindow == true
 {draw_set_color(c_white);
  draw_roundrect_color(view_xport[0]+96, view_yport[0]+96, (view_xport[0]+view_wport[0]-96), (view_yport[0]+view_hport[0]-96), c_gray, c_dkgray, false);
@@ -591,8 +737,9 @@ if global.InventoryWindow == true
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>/// view_x &amp; y
+            <string>/// ***view_x &amp; y
 
+/*
 draw_set_font(font_ui);
 draw_set_halign(fa_left);
 draw_set_valign(fa_top);
@@ -600,6 +747,42 @@ draw_set_colour(c_white);
 var a = instance_find(objectPlayerShip, 0);
 if a != noone
 {draw_text(32, 32, "view: " + string(view_wview[0]) + ", " + string(view_hview[0]) + "#ship: " + string(a.x) + ", " + string(a.y));}
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// ***gal x &amp; y, gal w &amp; h
+/*
+
+draw_set_font(font_ui);
+draw_set_halign(fa_left);
+draw_set_valign(fa_top);
+/*draw_set_colour(c_white);
+draw_text(32, 32, string(galX) + ", " + string(galY) + "#" + string(galW) + ", " + string(galH));
+
+var a, b, c;
+for (b = 0; b &lt; ds_grid_height(galRooms); b++)
+{for (a = 0; a &lt; ds_grid_width(galRooms); a++)
+ {c = ds_grid_get(galRooms, a, b);
+  draw_set_colour(c_white);
+  if c == -1 {draw_set_colour(c_red);}
+  draw_text(32 * a, 32 * b, string(c));}}
 </string>
           </argument>
         </arguments>

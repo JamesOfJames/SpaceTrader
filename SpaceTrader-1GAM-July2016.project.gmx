@@ -40,6 +40,7 @@
       <sprite>sprites\spriteJovian</sprite>
     </sprites>
     <sprites name="UI">
+      <sprite>sprites\spr_ui</sprite>
       <sprite>sprites\spriteRadar</sprite>
       <sprite>sprites\spriteArmor</sprite>
       <sprite>sprites\spriteEquip</sprite>
@@ -51,6 +52,7 @@
   <backgrounds name="background"/>
   <paths name="paths"/>
   <scripts name="scripts">
+    <script>scripts\scriptRadarNew.gml</script>
     <script>scripts\scriptDiceRoll.gml</script>
     <scripts name="objectSetup">
       <script>scripts\scriptCommSetup.gml</script>
@@ -62,6 +64,7 @@
       <scripts name="Planet Setup">
         <script>scripts\scriptPlanetResources.gml</script>
         <script>scripts\scriptNewPlanet.gml</script>
+        <script>scripts\scriptRandomName.gml</script>
       </scripts>
     </scripts>
     <script>scripts\scriptCollision.gml</script>
@@ -89,9 +92,13 @@
     <font>fonts\fontBlueHighway14Pt</font>
     <font>fonts\fontRighteous14Pt</font>
     <font>fonts\fontRighteous32Pt</font>
+    <font>fonts\fontBlank16pt</font>
+    <font>fonts\fontCranberryGin16pt</font>
+    <font>fonts\fontNarrowRectangle16pt</font>
+    <font>fonts\fontNarrowRectangle32pt</font>
   </fonts>
   <objects name="objects">
-    <objects name="Original">
+    <objects name="WIPs - Use these assets">
       <object>objects\objectSetup</object>
       <objects name="Celestial">
         <object>objects\objectStar</object>
@@ -158,6 +165,32 @@
     <objects name="Drops &amp; Shots">
       <object>objects\objectRedLaser</object>
       <object>objects\objectMoney</object>
+    </objects>
+    <objects name="UI">
+      <object>objects\ui_ani_control</object>
+      <object>objects\ui_bubble</object>
+      <object>objects\ui_button</object>
+      <object>objects\ui_button_ani</object>
+      <object>objects\ui_checkbox</object>
+      <object>objects\ui_checkgroup</object>
+      <object>objects\ui_combobox</object>
+      <object>objects\ui_dialog</object>
+      <object>objects\ui_editbox</object>
+      <object>objects\ui_gauge</object>
+      <object>objects\ui_keyboard</object>
+      <object>objects\ui_label</object>
+      <object>objects\ui_listbox</object>
+      <object>objects\ui_listbox_ext</object>
+      <object>objects\ui_listbox_horz</object>
+      <object>objects\ui_panel</object>
+      <object>objects\ui_slider</object>
+      <object>objects\ui_sliderVertical</object>
+      <object>objects\ui_swipe</object>
+      <object>objects\ui_textani</object>
+      <object>objects\ui_textbox</object>
+      <object>objects\ui_defaults</object>
+      <object>objects\ui_image</object>
+      <object>objects\ui_label_score</object>
     </objects>
   </objects>
   <rooms name="rooms">

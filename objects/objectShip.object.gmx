@@ -8,6 +8,32 @@
   <parentName>&lt;undefined&gt;</parentName>
   <maskName>&lt;undefined&gt;</maskName>
   <events>
+    <event eventtype="0" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Setup Variables
+
+dockedWith = noone;
+undocking = -1;
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
     <event eventtype="3" enumb="0">
       <action>
         <libid>1</libid>
@@ -26,6 +52,10 @@
           <argument>
             <kind>1</kind>
             <string>/// Movement
+
+if dockedWith != noone
+{doAccel = 0;
+ speed = 0;}
 
 // Turning
 if round(angle_difference(DesiredDirection, TrueDirection)) != 0
@@ -65,6 +95,62 @@ if doAccel &gt; 0
 
 // Sprite Frame
 image_index = round((TrueDirection + (RotationDegrees / 2)) div RotationDegrees); // Change sprite to match Facing direction
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Docked
+
+// If docked with a planet, orbit
+if dockedWith != noone
+{dockX = dockedWith.x;
+ dockY = dockedWith.y;
+
+ dockAngleChange = max(.95 * dockAngleChange, .5);
+ dockAngle += dockAngleChange; 
+ x = dockX - lengthdir_x(dockDistance, dockAngle);
+ y = dockY - lengthdir_y(dockDistance, dockAngle);
+ 
+ DesiredDirection = point_direction(x, y, dockX, dockY) - 90;}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="7" enumb="5">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>dockedWith = noone;
 </string>
           </argument>
         </arguments>

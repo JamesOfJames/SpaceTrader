@@ -4,7 +4,7 @@
   <solid>-1</solid>
   <visible>-1</visible>
   <depth>0</depth>
-  <persistent>0</persistent>
+  <persistent>-1</persistent>
   <parentName>objectShip</parentName>
   <maskName>&lt;undefined&gt;</maskName>
   <events>
@@ -107,6 +107,33 @@ part_type_direction(PartThrust, direction - 5, direction + 5, 0, 0.5);
           </argument>
         </arguments>
       </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// ***make a test slider
+/*
+vSlider = instance_create(0, 0, ui_sliderVertical);
+label = instance_create(32, 32, ui_label);
+
+vSlider.image_yscale = 10;
+vSlider.uiUpdateLabel = label;
+</string>
+          </argument>
+        </arguments>
+      </action>
     </event>
     <event eventtype="1" enumb="0">
       <action>
@@ -205,20 +232,26 @@ part_type_direction(PartThrust, point_direction(0, 0, lengthdir_x(1, TrueDirecti
             <kind>1</kind>
             <string>/// Movement
 
-// Input
-if FaceMouse
-{MouseDirection = point_direction(x, y, mouse_x, mouse_y); // Non-true Mouse Direction
- DesiredDirection = point_direction(0, 0, lengthdir_x(1, MouseDirection), lengthdir_y(1, MouseDirection) * 2);} // Correlates to TrueDirection for turning calc?
-
-// Should Accelerate?
-if mouse_check_button(mb_left)
-{doAccel = 1;
- part_emitter_burst(PartSys, PartEmit1, PartThrust, 1);}
-else {doAccel = 0;}
-
-
-
-
+if dockedWith == noone
+{// Count down to allow docking again
+ undocking--;
+ 
+ // Input
+ if FaceMouse
+ {MouseDirection = point_direction(x, y, mouse_x, mouse_y); // Non-true Mouse Direction
+  DesiredDirection = point_direction(0, 0, lengthdir_x(1, MouseDirection), lengthdir_y(1, MouseDirection) * 2);} // Correlates to TrueDirection for turning calc?
+ 
+ // Should Accelerate?
+ if mouse_check_button(mb_left)
+ {doAccel = 1;
+  part_emitter_burst(PartSys, PartEmit1, PartThrust, 1);}
+ else {doAccel = 0;}}
+else
+{// Click on the planet to undock
+ if mouse_check_button(mb_left)
+ {if point_distance(mouse_x, mouse_y, dockX, dockY) &lt; dockedWith.planRadius
+  {undocking = 5 * room_speed;
+   dockedWith = noone;}}}
 
 /*
 // Turning
@@ -258,6 +291,55 @@ if doAccel &gt; 0
 
 // Inherit the properties of the corresponding code action of the parent object.
 event_inherited();
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="7" enumb="3">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Mommy's Lil' Helper
+
+// Inherit the properties of the corresponding code action of the parent object.
+event_inherited();
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Clear Particle System
+
+part_system_destroy(PartSys);
 </string>
           </argument>
         </arguments>
@@ -304,6 +386,64 @@ event_inherited();
         <arguments>
           <argument>
             <kind>1</kind>
+            <string>/// ***Radar - Old system, works well enough for now.
+/*
+CenterX = view_xview[0]+(view_wview[0]/2);
+CenterY = view_yview[0]+(view_hview[0]/2);
+
+// Radar
+//if ds_grid_value_exists(global.PlayerData, 0, EquipTypeC, ds_grid_width(global.PlayerData), EquipTypeC, 8) and ds_grid_get(global.PlayerData, ds_grid_value_x(global.PlayerData, 0, EquipTypeC, ds_grid_width(global.PlayerData), EquipTypeC, 8), ActiveC) == 1
+//{SignalStrength = script_execute(scriptStatActiveMax, global.PlayerData, SignalStrengthC);}
+TopRight = point_direction(CenterX, CenterY, (view_xview[0]+view_wview[0]), view_yview[0]);
+TopLeft = point_direction(CenterX, CenterY, view_xview[0], view_yview[0]);
+BottomLeft = point_direction(CenterX, CenterY, view_xview[0], (view_yview[0]+view_hview[0]));
+BottomRight = point_direction(CenterX, CenterY, (view_xview[0]+view_wview[0]), (view_yview[0]+view_hview[0]));
+with (objectPlanet) // For each planet 
+{var TopRight = other.TopRight;
+ var TopLeft = other.TopLeft;
+ var BottomLeft = other.BottomLeft;
+ var BottomRight = other.BottomRight;
+ //PlayerRange = distance_to_object(other);
+ //if PlayerRange &lt; other.SignalStrength and !(median(view_xview[0], x, view_xview[0]+view_wview[0]) = x and median(view_yview[0], y, view_yview[0]+view_hview[0]) = y)
+ {SignalDirection = point_direction(other.CenterX, other.CenterY, x, y); // Get direction
+  if median(TopRight, SignalDirection, TopLeft) == SignalDirection // If the direction is towards the top of the screen
+  {BlipY = view_yview[0]+12;
+   BlipX = script_execute(scriptRadarCoord, x, y, other.x, other.y, 1, BlipY);}
+  else
+  {if median(other.BottomRight, SignalDirection, other.BottomLeft) == SignalDirection // If the direction is towards the bottom of the screen
+   {BlipY = view_yview[0]+view_hview[0]-12;
+    BlipX = script_execute(scriptRadarCoord, x, y, other.x, other.y, 1, BlipY);}
+   else
+   {if median(other.BottomLeft, SignalDirection, other.TopLeft) == SignalDirection // If the direction is towards the left of the screen
+    {BlipX = view_xview[0]+12;
+     BlipY = script_execute(scriptRadarCoord, x, y, other.x, other.y, 0, BlipX);}
+    else
+    {if min(other.TopRight, SignalDirection) == SignalDirection or max(other.BottomRight, SignalDirection) == SignalDirection// If the direction is towards the right of the screen
+     {BlipX = view_xview[0]+view_wview[0]-12;
+      BlipY = script_execute(scriptRadarCoord, x, y, other.x, other.y, 0, BlipX);}}}}
+   draw_set_blend_mode(bm_max);
+   draw_sprite_ext(spriteRadar, 0, BlipX - view_xview[0], BlipY - view_yview[0], image_xscale, image_yscale, SignalDirection, c_blue, 0.75);
+   draw_set_blend_mode(bm_normal);}}
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
             <string>/// ***Ship Direction
 
 /*draw_set_font(font_ui);
@@ -311,6 +451,140 @@ draw_set_halign(fa_right);
 draw_set_valign(fa_top);
 draw_set_colour(c_white);
 draw_text(view_wview[0] - 32, 32, string(round(TrueDirection)) + " - Direction#" + string(image_index) + " of " + string(image_number));
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// *** Old Player GUI, Deprecated &amp; Unused currently.
+
+
+
+
+/*
+//Fuel Meter
+draw_roundrect_color(view_xport[0]+16, view_yport[0]+16, (view_xport[0]+112), (view_yport[0]+48), c_gray, c_dkgray, false);
+draw_set_alpha(0.5);
+if (Fuel/MaxFuel) &gt;= .5 {draw_set_color(c_orange);}
+else {draw_set_color(c_maroon);}
+draw_roundrect(view_xport[0]+16, view_yport[0]+16, (view_xport[0]+16)+96*(Fuel/MaxFuel), (view_yport[0]+48), false);
+draw_set_alpha(1);
+draw_set_color(c_white);
+draw_text(view_xport[0]+64, view_yport[0]+32, "Fuel");
+
+
+MaxHealth = ds_grid_get(global.PlayerData, 0, MaxHealthC);
+Health = ds_grid_get(global.PlayerData, 0, HealthC);
+
+//Health Meter
+draw_set_alpha(0.75);
+//draw_roundrect_color(view_xport[0]+(view_wport[0]/2)-128, Bottom-64, view_xport[0]+(view_wport[0]/2)+128, Bottom-16, c_gray, c_dkgray, false);
+draw_set_colour(c_gray);
+draw_roundrect(view_xport[0]+(view_wport[0]/2)-128, Bottom-64, view_xport[0]+(view_wport[0]/2)+128, Bottom-16, false);
+draw_set_alpha(0.5);
+if (Health/MaxHealth) &gt;= .75 {draw_set_color(c_green);}
+if ((Health/MaxHealth) &gt;= .5 &amp;&amp; (Health/MaxHealth) &lt; .75) {draw_set_color(c_olive);}
+if ((Health/MaxHealth) &gt;= .25 &amp;&amp; (Health/MaxHealth) &lt; .5) {draw_set_color(c_maroon);}
+if ((Health/MaxHealth) &gt;= 0 &amp;&amp; (Health/MaxHealth) &lt; .25) {draw_set_color(c_red);}
+draw_roundrect((view_xport[0]+(view_wport[0]/2)-128), Bottom-64, (view_xport[0]+(view_wport[0]/2)-128)+(256*(Health/MaxHealth)), Bottom-16, false);
+draw_set_alpha(1);
+draw_set_color(c_white);
+draw_text(view_xport[0]+(view_wport[0]/2), Bottom-40, "Health");
+
+/*
+//Power Meter
+draw_roundrect_color(RightEdge-112, view_yport[0]+16, (RightEdge-16), (view_yport[0]+48), c_gray, c_dkgray, false);
+draw_set_alpha(0.5);
+draw_set_color(c_blue);
+draw_roundrect(RightEdge-112, view_yport[0]+16, (RightEdge-112)+96*((Power+PowerLoad)/MaxPower), (view_yport[0]+48), false);
+draw_set_color(c_teal);
+draw_roundrect(RightEdge-112, view_yport[0]+16, (RightEdge-112)+96*(PowerLoad/MaxPower), (view_yport[0]+48), false);
+draw_set_alpha(1);
+draw_set_color(c_white);
+draw_text(RightEdge-64, view_yport[0]+32, "Power");
+
+
+// System &amp; Money
+draw_set_font(fontBlueHighway14Pt);
+draw_set_color(c_silver);
+draw_set_halign(fa_right);
+draw_text(RightEdge-24, view_yport[0]+24, /*string(global.CurrentSystem)+"$"+string(Money));
+
+/*
+// Calendar
+if median(1, global.Month, 12) == global.Month
+{if global.Hour &lt; 10
+ {if global.Minute &lt; 10 {draw_text(view_xport[0]+(3*view_wport[0]/4), view_yport[0]+31, string(global.Day)+" "+string(global.MonthName[global.Month])+" "+string(global.Year)+"#0"+string(global.Hour)+":0"+string(global.Minute));}
+  else {draw_text(view_xport[0]+(3*view_wport[0]/4), view_yport[0]+31, string(global.Day)+" "+string(global.MonthName[global.Month])+" "+string(global.Year)+"#0"+string(global.Hour)+":"+string(global.Minute));}}
+ else
+ {if global.Minute &lt; 10 {draw_text(view_xport[0]+(3*view_wport[0]/4), view_yport[0]+31, string(global.Day)+" "+string(global.MonthName[global.Month])+" "+string(global.Year)+"#"+string(global.Hour)+":0"+string(global.Minute));}
+  else {draw_text(view_xport[0]+(3*view_wport[0]/4), view_yport[0]+31, string(global.Day)+" "+string(global.MonthName[global.Month])+" "+string(global.Year)+"#"+string(global.Hour)+":"+string(global.Minute));}}}
+
+
+// Slots
+var i,j
+for (i = 6; i &lt; ds_grid_width(global.PlayerData); i += 1) {if ds_grid_value_exists(global.PlayerData, i, SlotTypeC, ds_grid_width(global.PlayerData), SlotTypeC, 1) {j=i;}}
+j+=1;
+if ds_grid_value_exists(global.PlayerData, 6, SlotTypeC, ds_grid_width(global.PlayerData), SlotTypeC, 1)
+{for (i = 6; i &lt; ds_grid_width(global.PlayerData); i += 1)
+ {if ds_grid_get(global.PlayerData, i, SlotTypeC) == 1
+  {if i == ActiveSlot
+   {draw_set_alpha(0.75);
+    //draw_roundrect_color(RightEdge-((j-i)*40)-24, Bottom-64, RightEdge+24-((j-i)*40), Bottom-16, c_dkgray, c_gray, false);
+    draw_set_colour(c_gray);
+    draw_roundrect(RightEdge-((j-i)*40)-24, Bottom-64, RightEdge+24-((j-i)*40), Bottom-16, false);
+    draw_sprite(spriteEquip, ds_grid_get(global.PlayerData, i, SpriteC), RightEdge-((j-i)*40), Bottom-40);
+    draw_set_font(fontBlueHighway14Pt);
+    draw_set_alpha(1);
+    draw_text(RightEdge-((j-i)*40)-18, Bottom-56, string(i-5));}
+   else
+   {if ActiveSlot &gt; i
+    {draw_set_alpha(0.75);
+     //draw_roundrect_color(RightEdge-((j-i)*40)-24, Bottom-40, RightEdge-((j-i)*40), Bottom-16, c_dkgray, c_gray, false);
+     draw_set_colour(c_gray);
+     draw_roundrect(RightEdge-((j-i)*40)-24, Bottom-40, RightEdge-((j-i)*40), Bottom-16, false);
+     if ds_grid_get(global.PlayerData, i, ActiveC) == 1 {draw_sprite_ext(spriteEquip, ds_grid_get(global.PlayerData, i, SpriteC), RightEdge-((j-i)*40)-12, Bottom-28, 0.5, 0.5, image_angle, image_blend, image_alpha);}
+     else {draw_sprite_ext(spriteEquip, ds_grid_get(global.PlayerData, i, SpriteC), RightEdge-((j-i)*40)-12, Bottom-28, 0.5, 0.5, image_angle, c_dkgray, 0.5);}
+     draw_set_font(fontBlueHighway10Pt);
+     draw_set_alpha(1);
+     draw_text(RightEdge-((j-i)*40)-20, Bottom-34, string(i-5));}
+    else
+    {draw_set_alpha(0.75);
+     //draw_roundrect_color(RightEdge-((j-i)*40), Bottom-40, RightEdge+24-((j-i)*40), Bottom-16, c_dkgray, c_gray, false);
+     draw_set_colour(c_gray);
+     draw_roundrect(RightEdge-((j-i)*40), Bottom-40, RightEdge+24-((j-i)*40), Bottom-16, false);
+     if ds_grid_get(global.PlayerData, i, ActiveC) == 1 {draw_sprite_ext(spriteEquip, ds_grid_get(global.PlayerData, i, SpriteC), RightEdge-((j-i)*40)+12, Bottom-28, 0.5, 0.5, image_angle, image_blend, image_alpha);}
+     else {draw_sprite_ext(spriteEquip, ds_grid_get(global.PlayerData, i, SpriteC), RightEdge-((j-i)*40)+12, Bottom-28, 0.5, 0.5, image_angle, c_dkgray, 0.5);}
+     draw_set_font(fontBlueHighway10Pt);
+     draw_set_alpha(1);
+     draw_text(RightEdge-((j-i)*40)+4, Bottom-34, string(i-5));}}}}}
+     
+// Shield/Armor Status Bottom Left
+draw_set_alpha(0.75);
+draw_circle_color(view_xport[0]+40, Bottom-40, 24, c_dkgray, c_gray, false);
+draw_set_alpha(0.5);
+if ds_grid_get(global.PlayerData, 1, EquipTypeC) == 7 and ds_grid_get(global.PlayerData, 1, HealthC) &gt; 0 and ds_grid_get(global.PlayerData, 1, ActiveC) == 1
+{draw_circle_color(view_xport[0]+40, Bottom-40, sqrt(sqr(24)*(ds_grid_get(global.PlayerData, 1, HealthC)/ds_grid_get(global.PlayerData, 1, MaxHealthC))), merge_color(c_maroon, c_blue, (ds_grid_get(global.PlayerData, 1, HealthC)/ds_grid_get(global.PlayerData, 1, MaxHealthC))), merge_color(c_red, c_teal, (ds_grid_get(global.PlayerData, 1, HealthC)/ds_grid_get(global.PlayerData, 1, MaxHealthC))), false);}
+for (i = 0; i &lt; 4; i += 1)
+{if ds_grid_get(global.PlayerData, 2+i, HealthC) &gt; 0
+ {draw_sprite_ext(spriteArmor, i, view_xport[0]+40, Bottom-40, image_xscale, image_yscale, image_angle, merge_color(c_red, c_white, ds_grid_get(global.PlayerData, 2+i, HealthC)/ds_grid_get(global.PlayerData, 2+i, MaxHealthC)), image_alpha);}}
+draw_sprite_ext(sprite_index, 27, view_xport[0]+40, Bottom-40, 32/sprite_width, 32/sprite_height, image_angle, make_colour_hsv(128, 0, 255), 0.5);
+draw_set_alpha(1);
 </string>
           </argument>
         </arguments>
@@ -371,8 +645,40 @@ event_inherited();
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>draw_set_colour(c_blue);
+            <string>/// ***Draw Line in IsoDirection
+
+/*draw_set_colour(c_blue);
 draw_line(x, y, x + lengthdir_x(1000, IsoDirection), y + lengthdir_y(1000, IsoDirection));
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// ***Try for View[1]
+
+/*draw_rectangle_color(500, 500, 1000, 1000, c_red, c_yellow, c_green, c_blue, false);
+view_xport[1] = 100;
+view_yport[1] = 100; 
+view_wport[1] = view_wport[0] - 200;
+view_hport[1] = view_hport[0] - 200;
+view_visible[1] = true;
+view_xview[1] = 500;
+view_yview[1] = 500;
 </string>
           </argument>
         </arguments>

@@ -1,6 +1,39 @@
 galPlanetsCol = 9; // this is the first column that isn't set manually.  Adust if more data is added in before resources, etc.
 
-var a, b, c, d, e, f;
+var a, b, c, d, e, f, g;
+
+var g = script_execute(scriptDiceRoll, 3);
+switch g
+{case 3:
+ case 4:
+   orbitRatio = 1.4;
+   break;
+ case 5:
+ case 6:
+   orbitRatio = 1.5;
+   break;
+ case 7:
+ case 8:
+   orbitRatio = 1.6;
+   break;
+ case 9:
+ case 10:
+ case 11:
+ case 12:
+   orbitRatio = 1.7;
+   break;
+ case 13:
+ case 14:
+   orbitRatio = 1.8;
+   break;
+ case 15:
+ case 16:
+   orbitRatio = 1.9;
+   break;
+ case 17:
+ case 18:
+   orbitRatio = 2.0;
+   break;}
 
 e = irandom(3) + irandom(3) + 2; // number of planets in the system
 

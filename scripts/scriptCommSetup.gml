@@ -1,10 +1,3 @@
-
-/*commList = ds_grid_create(18, ds_queue_size(commRawData));
-script_execute(scriptCommSetup);
-
-ds_queue_enqueue(commRawData, "Survival Equipment/Life-Support Equipment, 40000, 3, 5% Ex, 1, In, -1, Na, 2, As, 2$");*/
-
-
 var a, b, c, d, e, z, commInfo, priceMods, conditions, commaPos;
 
 for (z = 0; !ds_queue_empty(commRawData); z++)
@@ -93,5 +86,5 @@ for (z = 0; !ds_queue_empty(commRawData); z++)
    for (c = 14; string_length(conditions) > 0; c++)
    {b = string_pos(", ", conditions);
     if b == 0 {b = string_length(conditions) + 1;}
-    ds_grid_set(commList, c, z, real(string_copy(conditions, 1, b - 1)));
+    ds_grid_set(commList, c, z, string_copy(conditions, 1, b - 1));
     conditions = string_delete(conditions, 1, b + 1);}}

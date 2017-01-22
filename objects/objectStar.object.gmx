@@ -4,7 +4,7 @@
   <solid>0</solid>
   <visible>-1</visible>
   <depth>100</depth>
-  <persistent>0</persistent>
+  <persistent>-1</persistent>
   <parentName>&lt;undefined&gt;</parentName>
   <maskName>&lt;undefined&gt;</maskName>
   <events>
@@ -29,7 +29,10 @@
 
 // Get the id of objectSetup; it will help, promise.
 objSet = instance_find(objectSetup, 0);
-show_debug_message("a star is born! " + string(objSet.currentSys) + " " + string(room));
+
+// Make Lists to track planets and ships
+planets = ds_list_create();
+ships = ds_list_create();
 
 // Which rooms border this?
 toE = -1;
@@ -45,11 +48,8 @@ starMass = (irandom(10) + irandom(10) + 1) / 10; // Stellar Mass, comared to le 
 //starLum = random(1) + random(1); // stellar luminosity, should really scale more, whatever.
 
 // Handle some view essentials
-whichPlanet = -1;
 view_visible[0] = true;
 view_enabled = true;
-//view_wview[0] = global.wPort;
-//view_hview[0] = global.hPort;
 
 // Start building the planets
 galPlanetsCol = objSet.galPlanetsCol;
@@ -66,6 +66,8 @@ while (ds_grid_value_exists(objSet.galPlanets, 0, 0, 0, ds_grid_height(objSet.ga
   
   planNum = b[1]; // column 1 = which planet in that system?
   {var e = instance_create(0, 0, objectPlanet);
+   ds_list_add(planets, e);
+   e.persistent = true;
    e.objSet = objSet;
    e.objStar = id;
    e.plNum = b[1];
@@ -102,9 +104,32 @@ while (ds_grid_value_exists(objSet.galPlanets, 0, 0, 0, ds_grid_height(objSet.ga
   if a + 1 &lt; ds_grid_height(objSet.galPlanets) - 1 // can't trim copy lines below this if it's the last line.
   {ds_grid_set_grid_region(objSet.galPlanets, objSet.galPlanets, 0, a + 1, ds_grid_width(objSet.galPlanets) - 1, ds_grid_height(objSet.galPlanets) - 1, 0, a);}
   ds_grid_resize(objSet.galPlanets, ds_grid_width(objSet.galPlanets), ds_grid_height(objSet.galPlanets) - 1);}}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="1" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Cleanup
 
-with (objectPlanet)
-{totPlanets = instance_number(objectPlanet);}
+ds_list_destroy(planets);
+ds_list_destroy(ships);
 </string>
           </argument>
         </arguments>
@@ -127,7 +152,7 @@ with (objectPlanet)
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>/// Look at different planets
+            <string>/// ***Look at different planets
 /*
 if keyboard_key != 0
 {switch (keyboard_key)
@@ -179,6 +204,134 @@ else
           </argument>
         </arguments>
       </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Keep Track of Local Ships
+
+if !ds_list_empty(ships)
+{if ds_list_size(ships) != instance_number(objectShip)
+ {ds_list_clear(ships);
+  var a;
+  for (a = 0; a &lt; instance_number(objectShip); a++)
+  {ds_list_add(ships, instance_find(objectShip, a));}}}
+else
+{if instance_number(objectShip) &gt; 0
+ {var a;
+  for (a = 0; a &lt; instance_number(objectShip); a++)
+  {ds_list_add(ships, instance_find(objectShip, a));}}}
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Activate Planets
+
+event_user(0);
+
+/// Activate Already Setup Planets &amp; Ships
+
+if !ds_list_empty(planets)
+{var a;
+ for (a = 0; a &lt; ds_list_size(planets); a++)
+ {instance_activate_object(ds_list_find_index(planets, a));}}
+  
+if !ds_list_empty(ships)
+{var b;
+ for (b = 0; b &lt; ds_list_size(ships); b++)
+ {instance_activate_object(ds_list_find_index(ships, b));}}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="7" enumb="10">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Activate Already Setup Planets &amp; Ships
+
+if !ds_list_empty(planets)
+{var a;
+ for (a = 0; a &lt; ds_list_size(planets); a++)
+ {instance_activate_object(ds_list_find_index(planets, a));}}
+  
+if !ds_list_empty(ships)
+{var b;
+ for (b = 0; b &lt; ds_list_size(ships); b++)
+ {instance_activate_object(ds_list_find_index(ships, b));}}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="7" enumb="5">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Deactivate Planets, AI Ships, and Star
+
+instance_deactivate_object(objectPlanet);
+instance_deactivate_object(objectAIShip);
+instance_deactivate_object(objectStar);
+</string>
+          </argument>
+        </arguments>
+      </action>
     </event>
     <event eventtype="7" enumb="4">
       <action>
@@ -221,6 +374,114 @@ if galY &lt; maxH - 1
           </argument>
         </arguments>
       </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Activate Already Setup Planets &amp; Ships
+
+if !ds_list_empty(planets)
+{var a;
+ for (a = 0; a &lt; ds_list_size(planets); a++)
+ {show_debug_message(string(ds_list_find_value(planets, a)));
+  instance_activate_object(ds_list_find_value(planets, a));}}
+  
+if !ds_list_empty(ships)
+{var b;
+ for (b = 0; b &lt; ds_list_size(ships); b++)
+ {instance_activate_object(ds_list_find_value(ships, b));}}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="7" enumb="3">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Cleanup
+
+ds_list_destroy(planets);
+ds_list_destroy(ships);
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="8" enumb="64">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Mommy's Lil' Helper
+
+// Inherit the properties of the corresponding code action of the parent object.
+event_inherited();
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Draw Radar Blip
+
+if instance_number(objectPlayerShip) &gt; 0
+{script_execute(scriptRadarNew);}
+</string>
+          </argument>
+        </arguments>
+      </action>
     </event>
     <event eventtype="8" enumb="0">
       <action>
@@ -239,7 +500,43 @@ if galY &lt; maxH - 1
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>draw_circle_colour(x, y, starRadius, starColorA, starColorB, false);
+            <string>/// Draw Star
+
+draw_circle_colour(x, y, starRadius, starColorA, starColorB, false);
+draw_set_font(fontCranberryGin16pt);
+draw_set_colour(c_white);
+draw_set_halign(fa_center);
+draw_set_valign(fa_middle);
+draw_text(x, y + starRadius + 32, string(id));
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// ***Rooms in all directions
+/*
+draw_set_colour(c_white);
+draw_text(x + starRadius + 32, y, string(toE));
+draw_text(x, y - starRadius - 32, string(toN));
+draw_text(x - starRadius - 32, y, string(toW));
+draw_text(x, y + starRadius + 32, string(toS));
+draw_set_colour(c_black);
+draw_text(x, y, string(room));
 </string>
           </argument>
         </arguments>

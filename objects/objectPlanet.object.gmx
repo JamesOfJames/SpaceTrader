@@ -4,7 +4,7 @@
   <solid>0</solid>
   <visible>-1</visible>
   <depth>100</depth>
-  <persistent>0</persistent>
+  <persistent>-1</persistent>
   <parentName>&lt;undefined&gt;</parentName>
   <maskName>&lt;undefined&gt;</maskName>
   <events>
@@ -26,7 +26,8 @@
           <argument>
             <kind>1</kind>
             <string>setup = false;
-totPlanets = 1;
+angleChangePerStep = 0;
+planName = script_execute(scriptRandomName);
 </string>
           </argument>
         </arguments>
@@ -50,13 +51,43 @@ totPlanets = 1;
           <argument>
             <kind>1</kind>
             <string>/// Update position in orbit
-/*phy_speed_x = 0;
-phy_speed_y = 0;*/
 
-starDir = point_direction(x, y, objStar.x, objStar.y);
-orbitNorm = starDir + 90;
+steps = objSet.steps;
+x = lengthdir_x(plOrbit, plAngle + (steps * angleChangePerStep * 2000));
+y = lengthdir_y(plOrbit, plAngle + (steps * angleChangePerStep * 2000));
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Docked?
 
-//physics_apply_impulse(x, y, lengthdir_x(orbitForce, orbitNorm), lengthdir_y(orbitForce, orbitNorm))
+var a;
+a = collision_circle(x, y, planRadius, objectShip, yes, true);
+
+if a != noone
+{if a.dockedWith = noone
+ {if a.undocking &lt;= 0
+  {with a
+   {dockedWith = other;
+    dockDistance = point_distance(x, y, other.x, other.y);
+    dockAngle = point_direction(x, y, other.x, other.y);
+    dockAngleChange = speed;}}}}
 </string>
           </argument>
         </arguments>
@@ -128,18 +159,58 @@ if setup
     planColorB = c_orange;
     break;}
  
- // Add physics stuff
-/* var fix, inst;
- fix = physics_fixture_create();
- physics_fixture_set_circle_shape(fix, planRadius);
- physics_fixture_set_density(fix, 10); //starMass / (pi * sqr(starRadius))); // wassa formula for density of a sphere?
- myFix = physics_fixture_bind(fix, id);
- physics_fixture_delete(fix);
- physics_joint_distance_create(objStar, id, objStar.x, objStar.y, x, y, false);
- orbitForce = (phy_mass * 6);
-
- phy_linear_damping = 0;*/
+ angleChangePerStep = 1 / sqrt(power(plOrbit, 3) / objStar.starMass)
  }
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="8" enumb="64">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Mommy's Lil' Helper
+
+// Inherit the properties of the corresponding code action of the parent object.
+event_inherited();
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Draw Radar Blip
+
+if instance_number(objectPlayerShip) &gt; 0
+{script_execute(scriptRadarNew);}
 </string>
           </argument>
         </arguments>
@@ -162,9 +233,52 @@ if setup
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>if setup
+            <string>/// Draw Planet
+
+if setup
 {draw_circle_colour(x, y, planRadius, planColorA, planColorB, false);
- draw_text(x, y + planRadius + 32, string(phy_speed)+"#"+string(point_distance(x, y, objStar.x, objStar.y)));}
+ draw_set_font(fontCranberryGin16pt);
+ draw_set_colour(c_white);
+ draw_set_halign(fa_center);
+ draw_set_valign(fa_middle);
+ draw_text(x, y + planRadius + 32, planName);}
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Display Trading Window
+
+player = instance_find(objectPlayerShip, 0);
+
+if player != noone
+{playerX = player.x;
+ playerY = player.y;
+ 
+ if player.dockedWith == id
+ {draw_set_alpha(0.75);
+  draw_roundrect_color_ext(x - 128, y + planRadius + 64, x + 128, y + planRadius + 192, 8, 8, c_dkgray, c_gray, false);
+  var a, b;
+  b = y + planRadius + 80;
+  for (a = 0; a &lt; array_length_1d(Res); a++)
+  {draw_text(x, b, string(ds_grid_get(objSet.commList, 10, Res[a])));
+   b = b + 16;}
+  draw_set_alpha(1);}}
 </string>
           </argument>
         </arguments>
