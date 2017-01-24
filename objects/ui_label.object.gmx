@@ -69,10 +69,6 @@ lasttext='';  //backup to check if changed.
 curZoomFactor=1;
 curAlpha=1;
 curRot=0;
-
-
-
-
 </string>
           </argument>
         </arguments>

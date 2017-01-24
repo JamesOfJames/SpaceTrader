@@ -78,8 +78,6 @@ hasfocus = false;
 
 drawpress = false;
 inForm=true;
-
-
 </string>
           </argument>
         </arguments>
@@ -387,7 +385,7 @@ if uiAlignV==fa_top { py= y+5; }
    
     
 draw_set_color(uiTextColor);  
-if disptx != '' draw_text_transformed(px+bx,py+by,disptx,uiXscale,uiYscale,0);   
+if disptx != '' draw_text_transformed(px+bx,py+by,disptx,uiXscale,uiYscale,0);
 </string>
           </argument>
         </arguments>

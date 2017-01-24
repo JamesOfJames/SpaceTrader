@@ -49,6 +49,8 @@
 
 **********************/
 
+persistent = true;
+
 uiTextValue="";
 uiTextLabel="";
 uiBackColor= c_white;
@@ -67,8 +69,8 @@ uiXscale = 1.0;
 uiYscale = 1.0;
 uiButtonList = false;  //if set then control is a button list and will send button to eventobj
 uiShowArrows = false;
-uiEventObject = instance_find(objectSetup, 0);  //-4 constant
-uiEventNum = 0;    //default event is just to call the statechanged on controller object if set
+uiEventObject = objectSetup;  //-4 constant
+uiEventNum = 15;    //default event is just to call the statechanged on controller object if set
 uiControlName = '';
 uiMultiSelect = false;
 uiAnchor = noone;

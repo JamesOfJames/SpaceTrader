@@ -242,11 +242,11 @@ if dockedWith == noone
   DesiredDirection = point_direction(0, 0, lengthdir_x(1, MouseDirection), lengthdir_y(1, MouseDirection) * 2);} // Correlates to TrueDirection for turning calc?
  
  // Should Accelerate?
- if mouse_check_button(mb_left)
+ if mouse_check_button(mb_right)
  {doAccel = 1;
   part_emitter_burst(PartSys, PartEmit1, PartThrust, 1);}
  else {doAccel = 0;}}
-else
+/*else
 {// Click on the planet to undock
  if mouse_check_button(mb_left)
  {if point_distance(mouse_x, mouse_y, dockX, dockY) &lt; dockedWith.planRadius
